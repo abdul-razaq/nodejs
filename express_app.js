@@ -8,6 +8,10 @@ const app = express();
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
+// We can serve static files e.g css, js files by registering a new middleware to handle static files using express.static.
+// You can also register multiple static folders middleware and express will tunnel any request down each middleware until it hits the file
+app.use(express.static(path.join(__dirname, 'public')));
+
 // Add middleware before our route handling middlewares because the parsing of the body should be done no matter where the request of the body ends up.
 // Parse the incoming request body in our express app
 app.use(bodyParser.urlencoded({ extended: false }));
