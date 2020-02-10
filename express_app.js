@@ -11,7 +11,7 @@ app.set('view engine', 'ejs');
 // let express know where to find our views
 app.set('views', 'views');
 
-const adminData = require('./routes/admin');
+const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 // We can serve static files e.g css, js files by registering a new middleware to handle static files using express.static.
@@ -23,7 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Only routes starting with /admin will go to the adminRoutes file
-app.use('/admin', adminData.routes);
+app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
 // This is a catch all middleware that returns 404

@@ -5,20 +5,12 @@ const express = require('express');
 // router is like a mini express app that we can connect to our express app
 const router = express.Router();
 
-const rootDir = require('../utils/path');
+// const rootDir = require('../utils/path');
 
-const products = [];
+const productsController = require('../controllers/products');
 
-router.get('/add-product', (req, res, next) => {
-  res.status(200).sendFile(path.join(rootDir, 'views', 'add-product.html'));
-});
+router.get('/add-product', productsController.getAddProduct);
 
-router.post('/add-product', (req, res, next) => {
-  products.push({ title: req.body.title });
-  res.redirect('/');
-});
+router.post('/add-product', productsController.postAddProduct);
 
-module.exports = {
-  routes: router,
-  products,
-};
+module.exports = router;
