@@ -5,7 +5,13 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
-const adminRoutes = require('./routes/admin');
+// We need to make sure express knows about the templating engine we want to use,
+// so we use app.set to set configuration items e.g 'view engine'
+app.set('view engine', 'pug');
+// let express know where to find our views
+app.set('views', 'views');
+
+const adminData = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 // We can serve static files e.g css, js files by registering a new middleware to handle static files using express.static.
@@ -17,7 +23,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: false }));
 
 // Only routes starting with /admin will go to the adminRoutes file
-app.use('/admin', adminRoutes);
+app.use('/admin', adminData.routes);
 app.use(shopRoutes);
 
 // This is a catch all middleware that returns 404
