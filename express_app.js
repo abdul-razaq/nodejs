@@ -7,7 +7,7 @@ const app = express();
 
 // We need to make sure express knows about the templating engine we want to use,
 // so we use app.set to set configuration items e.g 'view engine'
-app.set('view engine', 'pug');
+app.set('view engine', 'ejs');
 // let express know where to find our views
 app.set('views', 'views');
 
@@ -28,7 +28,7 @@ app.use(shopRoutes);
 
 // This is a catch all middleware that returns 404
 app.use((req, res) => {
-  res.status(404).sendFile(path.join(__dirname, 'views', '404.html'));
+  res.status(404).render('404', {pageTitle: 'Page Not Found'});
 });
 
 app.listen(3000, () => {
