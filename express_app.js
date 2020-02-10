@@ -14,6 +14,8 @@ app.set('views', 'views');
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
+const errorsController = require('./controllers/errors');
+
 // We can serve static files e.g css, js files by registering a new middleware to handle static files using express.static.
 // You can also register multiple static folders middleware and express will tunnel any request down each middleware until it hits the file
 app.use(express.static(path.join(__dirname, 'public')));
@@ -27,9 +29,7 @@ app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
 // This is a catch all middleware that returns 404
-app.use((req, res) => {
-  res.status(404).render('404', {pageTitle: 'Page Not Found'});
-});
+app.use(errorsController.get404);
 
 app.listen(3000, () => {
   console.log('Application started.');
