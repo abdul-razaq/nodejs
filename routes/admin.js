@@ -5,10 +5,12 @@ const express = require('express');
 // router is like a mini express app that we can connect to our express app
 const router = express.Router();
 
+const rootDir = require('../utils/path');
+
 router.get('/add-product', (req, res, next) => {
   res
     .status(200)
-    .sendFile(path.join(__dirname, '..', 'views', 'add-product.html'));
+    .sendFile(path.join(rootDir, 'views', 'add-product.html'));
 });
 
 router.post('/add-product', (req, res, next) => {
