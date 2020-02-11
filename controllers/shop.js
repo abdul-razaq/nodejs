@@ -16,6 +16,10 @@ exports.getCart = (req, res, next) => {
   res.render('shop/cart', { pageTitle: 'Cart' });
 };
 
+exports.getOrders = (req, res, next) => {
+  res.render('shop/orders', { pageTitle: 'Your Orders' });
+};
+
 exports.getIndex = (req, res, next) => {
   res.render('shop/index', { pageTitle: 'Welcome' });
 };

@@ -1,1 +1,1 @@
-[{"title":"Apples"},{"title":"Another Product"},{"title":"Book name"}]
+[{"title":"Apple","imageUrl":"https://google.images.com","price":"19.99","description":"A very delicious apple"},{"title":"A new book","imageUrl":"image://url","price":"19.99","description":"A good book"}]
