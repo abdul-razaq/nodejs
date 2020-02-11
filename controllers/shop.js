@@ -49,8 +49,17 @@ exports.postCart = (req, res, next) => {
   Product.findById(productId, product => {
     Cart.addProduct(productId, product.price);
   });
-  res.redirect('/cart')
+  res.redirect('/cart');
   // fetch the product in our database and then add it to our cart model
+};
+
+exports.postCartDeleteProduct = (req, res, next) => {
+  // Remove the product from the cart and not from the product itself
+  const { productId } = req.body;
+  Product.findById(productId, product => {
+    Cart.deleteProduct(productId, product.price);
+    res.redirect('/cart');
+  });
 };
 
 exports.getOrders = (req, res, next) => {
