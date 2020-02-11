@@ -1,4 +1,5 @@
 const Product = require('../models/product');
+const Cart = require('../models/cart');
 
 exports.getProducts = (req, res, next) => {
   // Used controller to use the Model to fetch some data
@@ -8,12 +9,31 @@ exports.getProducts = (req, res, next) => {
   });
 };
 
+exports.getProduct = (req, res, next) => {
+  const { productId } = req.params;
+  Product.findById(productId, product => {
+    res.render('shop/product-detail', {
+      product,
+      pageTitle: 'Product title',
+    });
+  });
+};
+
 exports.getProductDetails = (req, res, next) => {
   res.render('shop/product-detail', { pageTitle: 'Product Detail' });
 };
 
 exports.getCart = (req, res, next) => {
   res.render('shop/cart', { pageTitle: 'Cart' });
+};
+
+exports.postCart = (req, res, next) => {
+  // retrieve the product id (details) from this incoming request route
+  const { productId } = req.body;
+  Product.findById(productId, product => {
+    Cart.addProduct(productId, product.price);
+  });
+  // fetch the product in our database and then add it to our cart model
 };
 
 exports.getOrders = (req, res, next) => {

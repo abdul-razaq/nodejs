@@ -1,1 +1,1 @@
-[{"title":"Apple","imageUrl":"https://google.images.com","price":"19.99","description":"A very delicious apple"},{"title":"A new book","imageUrl":"image://url","price":"19.99","description":"A good book"}]
+[{"title":"Apples","imageUrl":"apples","price":"19.99","description":"A delicious apple","id":"0.42964976938399624"},{"title":"Orange","imageUrl":"orange","price":"20.34","description":"A sweet orange","id":"0.22535898672469723"},{"title":"Banana","imageUrl":"banana","price":"33.33","description":"A very delicious banana","id":"0.4854630261792705"}]
