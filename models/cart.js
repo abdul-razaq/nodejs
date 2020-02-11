@@ -38,4 +38,36 @@ module.exports = class Cart {
     });
     // If this product exists, increase the quantity of this product, else add the new product to the cart
   }
+
+  static deleteProduct(id, productPrice) {
+    fs.readFile(filePath, (err, fileContent) => {
+      if (err) {
+        return;
+      }
+      const updatedCart = { ...JSON.parse(fileContent) };
+      const product = updatedCart.products.find(product => product.id === id);
+      const productQty = product.qty;
+      updatedCart.products = updatedCart.products.filter(
+        product => product.id !== id
+      );
+      updatedCart.totalPrice =
+        updatedCart.totalPrice - productPrice * productQty;
+
+      fs.writeFile(filePath, JSON.stringify(updatedCart), err => {
+        console.log(err);
+      });
+    });
+  }
+
+  // get all the products in a cart
+  static getCart(callback) {
+    fs.readFile(filePath, (err, fileContent) => {
+      const cart = JSON.parse(fileContent);
+      if (err) {
+        callback(null);
+      } else {
+        callback(cart);
+      }
+    });
+  }
 };

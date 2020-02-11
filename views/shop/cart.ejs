@@ -1,4 +1,16 @@
 <%- include('../includes/head.ejs') %> <%- include('../includes/navigation.ejs')
 %>
-<h1>This is your items that are added to the Cart</h1>
+<main>
+  <% if (products.length > 0) { %>
+  <ul>
+    <% products.forEach(p => { %>
+    <li>
+      <p><%= p.productData.title %> (<%= p.qty %>)</p>
+    </li>
+    <% }) %>
+  </ul>
+  <% } else { %>
+  <h1>No Products in Cart!</h1>
+  <% } %>
+</main>
 <%- include('../includes/end.ejs') %>

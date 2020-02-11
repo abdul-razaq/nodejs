@@ -45,11 +45,17 @@ exports.postEditProduct = (req, res, next) => {
     description
   );
   updatedProduct.save();
-  res.redirect('/admin/products')
+  res.redirect('/admin/products');
 };
 
 exports.getAllProducts = (req, res, next) => {
   Product.fetchAll(products => {
     res.render('admin/products', { pageTitle: 'All Products', products });
   });
+};
+
+exports.postDeleteProduct = (req, res, next) => {
+  const { productId } = req.body;
+  Product.deleteById(productId);
+  res.redirect('/admin/products');
 };
