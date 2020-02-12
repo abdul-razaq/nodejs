@@ -15,6 +15,7 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 const errorsController = require('./controllers/errors');
+const db = require('./utils/database');
 
 // We can serve static files e.g css, js files by registering a new middleware to handle static files using express.static.
 // You can also register multiple static folders middleware and express will tunnel any request down each middleware until it hits the file
@@ -27,6 +28,14 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Only routes starting with /admin will go to the adminRoutes file
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
+
+db.execute('SELECT * FROM products')
+  .then(result => {
+    console.log(result);
+  })
+  .catch(err => {
+    if (err) console.log(err);
+  });
 
 // This is a catch all middleware that returns 404
 app.use(errorsController.get404);
