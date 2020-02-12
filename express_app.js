@@ -20,6 +20,8 @@ const sequelize = require('./utils/database');
 // Import models so as to create relationships between them
 const Product = require('./models/product');
 const User = require('./models/user');
+const Cart = require('./models/cart');
+const CartItem = require('./models/cart-item');
 
 // We can serve static files e.g css, js files by registering a new middleware to handle static files using express.static.
 // You can also register multiple static folders middleware and express will tunnel any request down each middleware until it hits the file
@@ -53,6 +55,11 @@ app.use(errorsController.get404);
 // Create a relationship between our User and Product model
 Product.belongsTo(User, { constraints: true, onDelete: 'CASCADE' });
 User.hasMany(Product);
+User.hasOne(Cart);
+Cart.belongsTo(User);
+// One Cart can hold multiple products AND one Product can belong to multiple different carts. This Many-to-Many relationship is usually defined in an intermediary table, here it is CartItem
+Cart.belongsToMany(Product, { through: CartItem });
+Product.belongsToMany(Cart, { through: CartItem });
 
 // make sure sequelize creates tables from our models and define their schema when our app starts.
 sequelize
@@ -68,6 +75,10 @@ sequelize
     return user;
   })
   .then(user => {
+    // create a cart for the user after he has been created
+    return user.createCart();
+  })
+  .then(cart => {
     // start my server only when the tables have been created from our models
     app.listen(3000, () => {
       console.log('Application started.');
