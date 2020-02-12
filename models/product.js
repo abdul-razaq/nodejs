@@ -1,23 +1,4 @@
-const fs = require('fs');
-const path = require('path');
-
 const Cart = require('./cart');
-
-const filePath = path.join(
-  path.dirname(process.mainModule.filename),
-  'data',
-  'products.json'
-);
-
-const getProductsFromFile = callback => {
-  fs.readFile(filePath, (err, fileContent) => {
-    if (err) {
-      callback([]);
-    } else {
-      callback(JSON.parse(fileContent));
-    }
-  });
-};
 
 module.exports = class Product {
   // Define the shape of a product

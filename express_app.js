@@ -29,14 +29,6 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 
-db.execute('SELECT * FROM products')
-  .then(result => {
-    console.log(result);
-  })
-  .catch(err => {
-    if (err) console.log(err);
-  });
-
 // This is a catch all middleware that returns 404
 app.use(errorsController.get404);
 
