@@ -12,53 +12,18 @@ module.exports = class Product {
   }
 
   save = () => {
-    getProductsFromFile(products => {
-      // check to see if we already have a product with this id
-      if (this.id) {
-        const existingProductIndex = products.findIndex(
-          product => product.id === this.id
-        );
-        const updatedProducts = [...products];
-        updatedProducts[existingProductIndex] = this;
-        // Save the data back into the file
-        fs.writeFile(filePath, JSON.stringify(updatedProducts), err => {
-          if (err) console.log(err);
-        });
-      } else {
-        // generate an id for each product object
-        this.id = Math.random().toString();
-        products.push(this);
-        // Save the data back into the file
-        fs.writeFile(filePath, JSON.stringify(products), err => {
-          if (err) console.log(err);
-        });
-      }
-    });
-    // store a product to this file
-    // get the existing product from the file
+
   };
 
   static deleteById = id => {
-    getProductsFromFile(products => {
-      const product = products.find(product => product.id === id);
-      const updatedProducts = products.filter(product => product.id !== id);
-      fs.writeFile(filePath, JSON.stringify(updatedProducts), err => {
-        if (!err) {
-          Cart.deleteProduct(id, product.price);
-        }
-      });
-    });
+    
   };
 
   // retrieve all products from our array
   static fetchAll = callback => {
-    getProductsFromFile(callback);
   };
 
   static findById = (id, callback) => {
-    getProductsFromFile(products => {
-      const product = products.find(product => product.id === id);
-      callback(product);
-    });
+    
   };
 };
