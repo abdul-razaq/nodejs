@@ -11,12 +11,14 @@ exports.getAddProduct = (req, res, next) => {
 exports.postAddProduct = async (req, res, next) => {
   const { title, imageUrl, price, description } = req.body;
   // create a new product from our Product model and immediately save it to the database
-  Product.create({
-    title,
-    imageUrl,
-    price,
-    description,
-  })
+  req.user
+    .createProduct({
+      title,
+      imageUrl,
+      price,
+      description,
+      userId: req.user.id,
+    })
     .then(result => {
       console.log('Created product');
       res.redirect('/admin/products');
@@ -33,8 +35,11 @@ exports.getEditProduct = (req, res, next) => {
     return res.redirect('/');
   }
   const { productId } = req.params;
-  Product.findByPk(productId)
-    .then(product => {
+  // Get products that are only created by the currently logged in user in order to edit them
+  req.user
+    .getProducts({ where: { id: productId } })
+    .then(products => {
+      const product = products[0];
       if (!product) {
         return res.redirect('/');
       }
@@ -71,12 +76,14 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getAllProducts = async (req, res, next) => {
-  const products = await Product.findAll();
+  // Find all Products that only belong to the currently logged in user
+  const products = await req.user.getProducts();
   res.render('admin/products', { pageTitle: 'All Products', products });
 };
 
 exports.postDeleteProduct = async (req, res, next) => {
   const { productId } = req.body;
+  // Delete a product that belongs to the currently logged in user
   await Product.findByPk(productId)
     .then(product => {
       return product.destroy();
