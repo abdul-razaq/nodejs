@@ -1,11 +1,11 @@
-// Connect to out MySQL database from our node application
-const mysql = require('mysql2');
+// Using Sequelize to connect to the database that uses mysql2 behind the scenes
+const Sequelize = require('sequelize');
 
-const pool = mysql.createPool({
+// create a new sequelize instance
+const sequelize = new Sequelize('node-complete', 'root', 'toor', {
+  dialect: 'mysql',
   host: 'localhost',
-  user: 'root',
-  database: 'node-complete',
-  password: 'toor',
 });
 
-module.exports = pool.promise();
+// export the database connection pool, that is managed with sequelize
+module.exports = sequelize;

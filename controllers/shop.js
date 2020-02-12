@@ -4,15 +4,15 @@ const Cart = require('../models/cart');
 exports.getProducts = async (req, res, next) => {
   // Used controller to use the Model to fetch some data from the database
   // We then send the data into a view i.e we use the controller to render view with the data
-  const [rows, _] = await Product.fetchAll();
-  res.render('shop/product-list', { pageTitle: 'Shop', products: rows });
+  const products = await Product.findAll();
+  res.render('shop/product-list', { pageTitle: 'Shop', products });
 };
 
 exports.getProduct = async (req, res, next) => {
   const { productId } = req.params;
-  const [rows, _] = await Product.findById(productId);
+  const product = await Product.findByPk(productId);
   res.render('shop/product-detail', {
-    product: rows[0],
+    product,
     pageTitle: 'Product title',
   });
 };
