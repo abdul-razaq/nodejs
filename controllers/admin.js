@@ -8,10 +8,10 @@ exports.getAddProduct = (req, res, next) => {
   });
 };
 
-exports.postAddProduct = (req, res, next) => {
+exports.postAddProduct = async (req, res, next) => {
   const { title, imageUrl, price, description } = req.body;
   const product = new Product(null, title, imageUrl, price, description);
-  product.save();
+  await product.save();
   res.redirect('/');
 };
 
@@ -48,10 +48,9 @@ exports.postEditProduct = (req, res, next) => {
   res.redirect('/admin/products');
 };
 
-exports.getAllProducts = (req, res, next) => {
-  Product.fetchAll(products => {
-    res.render('admin/products', { pageTitle: 'All Products', products });
-  });
+exports.getAllProducts = async (req, res, next) => {
+  const [rows, _] = await Product.fetchAll();
+  res.render('admin/products', { pageTitle: 'All Products', products: rows });
 };
 
 exports.postDeleteProduct = (req, res, next) => {
