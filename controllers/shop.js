@@ -1,5 +1,4 @@
 const Product = require('../models/product');
-const Cart = require('../models/cart');
 
 exports.getProducts = async (req, res, next) => {
   // Used controller to use the Model to fetch some data from the database
@@ -100,8 +99,48 @@ exports.postCartDeleteProduct = (req, res, next) => {
     .catch(err => console.log(err));
 };
 
+exports.postOrder = (req, res, next) => {
+  let fetchedCart;
+  // Take all the cart items and move them into an Order Table
+  req.user
+    .getCart()
+    .then(cart => {
+      fetchedCart = cart;
+      // get access to all the products in the cart
+      return cart.getProducts();
+    })
+    .then(products => {
+      // move the product into a newly created order
+      return req.user
+        .createOrder()
+        .then(order => {
+          // Associate product to that order
+          return order.addProducts(
+            products.map(product => {
+              product.orderItem = { quantity: product.cartItem.quantity };
+              return product;
+            })
+          );
+        })
+        .catch(err => console.log(err));
+    })
+    .then(result => {
+      return fetchedCart.setProducts(null);
+    })
+    .then(result => {
+      res.redirect('/orders');
+    })
+    .catch(err => console.log(err));
+};
+
 exports.getOrders = (req, res, next) => {
-  res.render('shop/orders', { pageTitle: 'Your Orders' });
+  // retrieve the orders and display them on the orders page
+  req.user
+    .getOrders({ include: ['products'] })
+    .then(orders => {
+      res.render('shop/orders', { pageTitle: 'Your Orders', orders });
+    })
+    .catch(err => console.log(err));
 };
 
 exports.getIndex = (req, res, next) => {
