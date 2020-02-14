@@ -11,14 +11,9 @@ exports.getAddProduct = (req, res, next) => {
 exports.postAddProduct = async (req, res, next) => {
   const { title, imageUrl, price, description } = req.body;
   // create a new product from our Product model and immediately save it to the database
-  req.user
-    .createProduct({
-      title,
-      imageUrl,
-      price,
-      description,
-      userId: req.user.id,
-    })
+  const product = new Product(title, price, description, imageUrl);
+  product
+    .save()
     .then(result => {
       console.log('Created product');
       res.redirect('/admin/products');
@@ -28,31 +23,31 @@ exports.postAddProduct = async (req, res, next) => {
     });
 };
 
-exports.getEditProduct = (req, res, next) => {
-  // grab the product we wanna edit and pass in the information into this view
-  const editMode = req.query.edit;
-  if (!editMode) {
-    return res.redirect('/');
-  }
-  const { productId } = req.params;
-  // Get products that are only created by the currently logged in user in order to edit them
-  req.user
-    .getProducts({ where: { id: productId } })
-    .then(products => {
-      const product = products[0];
-      if (!product) {
-        return res.redirect('/');
-      }
-      res.render('admin/edit-product', {
-        pageTitle: 'Add Product',
-        editing: editMode,
-        product,
-      });
-    })
-    .catch(err => {
-      if (err) console.log(err);
-    });
-};
+// exports.getEditProduct = (req, res, next) => {
+//   // grab the product we wanna edit and pass in the information into this view
+//   const editMode = req.query.edit;
+//   if (!editMode) {
+//     return res.redirect('/');
+//   }
+//   const { productId } = req.params;
+//   // Get products that are only created by the currently logged in user in order to edit them
+//   req.user
+//     .getProducts({ where: { id: productId } })
+//     .then(products => {
+//       const product = products[0];
+//       if (!product) {
+//         return res.redirect('/');
+//       }
+//       res.render('admin/edit-product', {
+//         pageTitle: 'Add Product',
+//         editing: editMode,
+//         product,
+//       });
+//     })
+//     .catch(err => {
+//       if (err) console.log(err);
+//     });
+// };
 
 exports.postEditProduct = (req, res, next) => {
   const { productId } = req.body;
