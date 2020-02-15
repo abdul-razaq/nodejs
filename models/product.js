@@ -1,20 +1,32 @@
+const mongodb = require('mongodb');
 // Import the database connection pool managed by sequelize
 const getDB = require('../utils/database').getDB;
 
 // Define Product model
 class Product {
-  constructor(title, price, description, imageUrl) {
+  constructor(title, price, description, imageUrl, id) {
     this.title = title;
     this.price = price;
     this.description = description;
     this.imageUrl = imageUrl;
+    this._id = id;
   }
 
   save() {
     const db = getDB();
-    return db
-      .collection('products')
-      .insertOne(this)
+    let dbOp;
+    if (this._id) {
+      // We update the product
+      dbOp = db
+        .collection('products')
+        .updateOne({ _id: new mongodb.ObjectId(this._id) }, { $set: this });
+    } else {
+      // Otherwise we create the new product
+      dbOp = db.collection('products').insertOne(this);
+    }
+
+    return;
+    dbOp
       .then(result => {
         console.log(result);
       })
@@ -39,7 +51,7 @@ class Product {
     const db = getDB();
     return db
       .collection('products')
-      .find({ _id: productId })
+      .find({ _id: new mongodb.ObjectId(productId) })
       .next()
       .then(product => {
         console.log(product);
