@@ -2,6 +2,7 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const mongoose = require('mongoose');
 
 const app = express();
 
@@ -49,8 +50,17 @@ app.use(shopRoutes);
 // This is a catch all middleware that returns 404
 app.use(errorsController.get404);
 
-mongoConnect(() => {
-  app.listen(3000, () => {
-    console.log('Application started!');
+// Setup a mongoose connection to the mongodb database
+mongoose
+  .connect(
+    'mongodb+srv://abdulrazaq:assassinscreed01@cluster0-osvnf.mongodb.net/shop?retryWrites=true&w=majority'
+  )
+  .then(result => {
+    // listen for incoming request after mongoose has connected to the database
+    app.listen(3000, () => {
+      console.log('Application started.');
+    });
+  })
+  .catch(err => {
+    console.log(err);
   });
-});
