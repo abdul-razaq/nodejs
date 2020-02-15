@@ -41,41 +41,48 @@ exports.getCart = (req, res, next) => {
 exports.postCart = (req, res, next) => {
   // ADD PRODUCTS TO THE CART
   const { productId } = req.body;
-  let fetchedCart;
-  // get access to the cart
-  req.user
-    .getCart()
-    .then(cart => {
-      fetchedCart = cart;
-      // find out if the product that you want to add to the cart is already part of the cart, if it is, just increase the quantity, if not, add the cart with the quantity of one
-      return cart.getProducts({ where: { id: productId } });
+  // fetch the product by the product id
+  Product.findById(productId)
+    .then(product => {
+      return req.user.addToCart(product);
     })
-    .then(products => {
-      let product;
-      if (products.length > 0) {
-        product = products[0];
-      }
-      let newQuantity = 1;
-      if (product) {
-        // If we have a product, get a quantity for this product and then change it
-        const oldQuantity = product.cartItem.quantity;
-        newQuantity = oldQuantity + 1;
-        return fetchedCart.addProduct(product, {
-          through: { quantity: newQuantity },
-        });
-      }
-      return Product.findByPk(productId)
-        .then(product => {
-          return fetchedCart.addProduct(product, {
-            through: { quantity: newQuantity },
-          });
-        })
-        .catch(err => console.log(err));
-    })
-    .then(() => {
-      res.redirect('/cart');
-    })
+    .then(result => console.log(result))
     .catch(err => console.log(err));
+  // let fetchedCart;
+  // // get access to the cart
+  // req.user
+  //   .getCart()
+  //   .then(cart => {
+  //     fetchedCart = cart;
+  //     // find out if the product that you want to add to the cart is already part of the cart, if it is, just increase the quantity, if not, add the cart with the quantity of one
+  //     return cart.getProducts({ where: { id: productId } });
+  //   })
+  //   .then(products => {
+  //     let product;
+  //     if (products.length > 0) {
+  //       product = products[0];
+  //     }
+  //     let newQuantity = 1;
+  //     if (product) {
+  //       // If we have a product, get a quantity for this product and then change it
+  //       const oldQuantity = product.cartItem.quantity;
+  //       newQuantity = oldQuantity + 1;
+  //       return fetchedCart.addProduct(product, {
+  //         through: { quantity: newQuantity },
+  //       });
+  //     }
+  //     return Product.findByPk(productId)
+  //       .then(product => {
+  //         return fetchedCart.addProduct(product, {
+  //           through: { quantity: newQuantity },
+  //         });
+  //       })
+  //       .catch(err => console.log(err));
+  //   })
+  //   .then(() => {
+  //     res.redirect('/cart');
+  //   })
+  //   .catch(err => console.log(err));
 };
 
 exports.postCartDeleteProduct = (req, res, next) => {
