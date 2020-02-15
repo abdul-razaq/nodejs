@@ -1,5 +1,6 @@
 // Admin related products controller
 const Product = require('../models/product');
+const mongodb = require('../utils/database');
 
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
@@ -50,9 +51,9 @@ exports.getEditProduct = (req, res, next) => {
 exports.postEditProduct = (req, res, next) => {
   const { productId } = req.body;
   const { title, price, imageUrl, description } = req.body;
-  const product = new Product(title, price, imageUrl, description);
+  const product = new Product(title, price, description, imageUrl, productId);
   product
-  .save()
+    .save()
     .then(result => {
       console.log('UPDATED PRODUCT');
       res.redirect('/admin/products');
