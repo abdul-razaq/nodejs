@@ -72,15 +72,7 @@ exports.getAllProducts = async (req, res, next) => {
 exports.postDeleteProduct = async (req, res, next) => {
   const { productId } = req.body;
   // Delete a product that belongs to the currently logged in user
-  await Product.findByPk(productId)
-    .then(product => {
-      return product.destroy();
-    })
-    .then(result => {
-      console.log('PRODUCT DESTROYED');
-      res.redirect('/admin/products');
-    })
-    .catch(err => {
-      if (err) console.log(err);
-    });
+  await Product.deleteById(productId);
+  console.log('PRODUCT DESTROYED');
+  res.redirect('/admin/products');
 };
