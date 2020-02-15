@@ -10,9 +10,18 @@ exports.getAddProduct = (req, res, next) => {
 };
 
 exports.postAddProduct = async (req, res, next) => {
+  // grab the id of the user which is currently logged in that is now stored in the req.user property
+  const { _id } = req.user;
   const { title, imageUrl, price, description } = req.body;
   // create a new product from our Product model and immediately save it to the database
-  const product = new Product(title, price, description, imageUrl);
+  const product = new Product(
+    title,
+    price,
+    description,
+    imageUrl,
+    null,
+    _id
+  );
   product
     .save()
     .then(result => {

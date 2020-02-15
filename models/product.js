@@ -4,12 +4,14 @@ const getDB = require('../utils/database').getDB;
 
 // Define Product model
 class Product {
-  constructor(title, price, description, imageUrl, id) {
+  // pass a userId too to the product when creating a new product
+  constructor(title, price, description, imageUrl, id, userId) {
     this.title = title;
     this.price = price;
     this.description = description;
     this.imageUrl = imageUrl;
     this._id = id ? new mongodb.ObjectId(id) : null;
+    this.userId = userId;
   }
 
   save() {
@@ -63,7 +65,8 @@ class Product {
 
   static deleteById(productId) {
     const db = getDB();
-    return db.collection('products')
+    return db
+      .collection('products')
       .deleteOne({ _id: new mongodb.ObjectId(productId) })
       .then(result => {
         console.log('Product Deleted');
