@@ -20,6 +20,11 @@ const productSchema = new Schema({
     type: String,
     required: true,
   },
+  userId: {
+    type: Schema.Types.ObjectId,
+    ref: 'User',
+    required: true,
+  },
 });
 // Then create a Product Model based on this predefined Product Schema
 module.exports = mongoose.model('Product', productSchema);

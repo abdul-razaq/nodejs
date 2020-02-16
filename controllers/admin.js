@@ -19,6 +19,7 @@ exports.postAddProduct = async (req, res, next) => {
     price: price,
     description: description,
     imageUrl: imageUrl,
+    userId: _id,
   });
   product
     .save()
@@ -84,7 +85,7 @@ exports.getAllProducts = async (req, res, next) => {
 exports.postDeleteProduct = async (req, res, next) => {
   const { productId } = req.body;
   // Delete a product that belongs to the currently logged in user
-  await Product.deleteById(productId);
+  await Product.findByIdAndRemove(productId);
   console.log('PRODUCT DESTROYED');
   res.redirect('/admin/products');
 };

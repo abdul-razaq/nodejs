@@ -1,4 +1,5 @@
 const Product = require('../models/product');
+const Order = require('../models/order');
 
 exports.getProducts = async (req, res, next) => {
   // Used controller to use the Model to fetch some data from the database
@@ -22,9 +23,11 @@ exports.getProductDetails = (req, res, next) => {
 
 exports.getCart = (req, res, next) => {
   req.user
-    .getCart()
-    .then(products => {
+    .populate('cart.items.productId')
+    .execPopulate()
+    .then(user => {
       // with the cart available, we can use it to fetch the products that are inside of it.
+      const products = user.cart.items;
       res.render('shop/cart', {
         pageTitle: 'Your Cart',
         products: products,
@@ -52,7 +55,7 @@ exports.postCartDeleteProduct = (req, res, next) => {
   // Remove the product from the cart and not from the product itself
   const { productId } = req.body;
   req.user
-    .deleteItemFromCart(productId)
+    .removeFromCart(productId)
     .then(result => {
       console.log('PRODUCT DELETED');
       res.redirect('/cart');
@@ -61,20 +64,35 @@ exports.postCartDeleteProduct = (req, res, next) => {
 };
 
 exports.postOrder = (req, res, next) => {
-  let fetchedCart;
   // Take all the cart items and move them into an Order Table
   req.user
-    .addOrder()
+    .populate('cart.items.productId')
+    .execPopulate()
+    .then(user => {
+      const products = user.cart.items.map(i => {
+        return { quantity: i.quantity, product: { ...i.productId._doc } };
+      });
+      const order = new Order({
+        user: {
+          name: req.user.name,
+          userId: req.user,
+        },
+        products: products,
+      });
+      order.save();
+    })
     .then(result => {
+      return req.user.clearCart();
+    })
+    .then(() => {
       res.redirect('/orders');
     })
     .catch(err => console.log(err));
 };
 
 exports.getOrders = (req, res, next) => {
-  // retrieve the orders and display them on the orders page
-  req.user
-    .getOrders()
+  // retrieve the orders that belongs to the currently logged in user.
+  Order.find({ 'user.userId': req.user._id })
     .then(orders => {
       res.render('shop/orders', { pageTitle: 'Your Orders', orders });
     })
