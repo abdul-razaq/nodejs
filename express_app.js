@@ -16,8 +16,7 @@ const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 
 const errorsController = require('./controllers/errors');
-const mongoConnect = require('./utils/database').mongoConnect;
-const User = require('./models/user');
+// const User = require('./models/user');
 
 // Import models so as to create relationships between them
 
@@ -27,17 +26,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Register a new middleware so that i can store that user in my request, so that i can use it from anywhere in my app conveniently
 app.use((req, res, next) => {
-  // This code will only run for incoming request
-  User.findById('')
-    .then(user => {
-      // store the user in a request
-      req.user = new User(user.name, user.email, user.cart, user._id);
-      next();
-    })
-    .catch(err => {
-      if (err) console.log(err);
-    });
-});
+//   // This code will only run for incoming request
+//   User.findById('')
+//     .then(user => {
+//       // store the user in a request
+//       req.user = new User(user.name, user.email, user.cart, user._id);
+//       next();
+//     })
+//     .catch(err => {
+//       if (err) console.log(err);
+//     });
+// });
 
 // Add middleware before our route handling middlewares because the parsing of the body should be done no matter where the request of the body ends up.
 // Parse the incoming request body in our express app

@@ -13,15 +13,13 @@ exports.postAddProduct = async (req, res, next) => {
   // grab the id of the user which is currently logged in that is now stored in the req.user property
   const { _id } = req.user;
   const { title, imageUrl, price, description } = req.body;
-  // create a new product from our Product model and immediately save it to the database
-  const product = new Product(
-    title,
-    price,
-    description,
-    imageUrl,
-    null,
-    _id
-  );
+  // create a new product from our mongoose Product model and immediately save it to the database
+  const product = new Product({
+    title: title,
+    price: price,
+    description: description,
+    imageUrl: imageUrl,
+  });
   product
     .save()
     .then(result => {
@@ -60,9 +58,14 @@ exports.getEditProduct = (req, res, next) => {
 exports.postEditProduct = (req, res, next) => {
   const { productId } = req.body;
   const { title, price, imageUrl, description } = req.body;
-  const product = new Product(title, price, description, imageUrl, productId);
-  product
-    .save()
+  Product.findById(productId)
+    .then(product => {
+      product.title = title;
+      product.price = price;
+      product.imageUrl = imageUrl;
+      product.description = description;
+      return product.save();
+    })
     .then(result => {
       console.log('UPDATED PRODUCT');
       res.redirect('/admin/products');
@@ -74,7 +77,7 @@ exports.postEditProduct = (req, res, next) => {
 
 exports.getAllProducts = async (req, res, next) => {
   // Find all Products that only belong to the currently logged in user
-  const products = await Product.fetchAll();
+  const products = await Product.find();
   res.render('admin/products', { pageTitle: 'All Products', products });
 };
 
