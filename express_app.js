@@ -14,6 +14,7 @@ app.set('views', 'views');
 
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
+const authRoutes = require('./routes/auth');
 
 const errorsController = require('./controllers/errors');
 const User = require('./models/user');
@@ -45,6 +46,7 @@ app.use(bodyParser.urlencoded({ extended: false }));
 // Only routes starting with /admin will go to the adminRoutes file
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
+app.use(authRoutes);
 
 // This is a catch all middleware that returns 404
 app.use(errorsController.get404);
