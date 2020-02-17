@@ -5,7 +5,11 @@ exports.getProducts = async (req, res, next) => {
   // Used controller to use the Model to fetch some data from the database
   // We then send the data into a view i.e we use the controller to render view with the data
   const products = await Product.find();
-  res.render('shop/product-list', { pageTitle: 'Shop', products });
+  res.render('shop/product-list', {
+    pageTitle: 'Shop',
+    products,
+    isAuthenticated: req.isLoggedIn,
+  });
 };
 
 exports.getProduct = async (req, res, next) => {
@@ -14,11 +18,15 @@ exports.getProduct = async (req, res, next) => {
   res.render('shop/product-detail', {
     product,
     pageTitle: 'Product title',
+    isAuthenticated: req.isLoggedIn,
   });
 };
 
 exports.getProductDetails = (req, res, next) => {
-  res.render('shop/product-detail', { pageTitle: 'Product Detail' });
+  res.render('shop/product-detail', {
+    pageTitle: 'Product Detail',
+    isAuthenticated: req.isLoggedIn,
+  });
 };
 
 exports.getCart = (req, res, next) => {
@@ -31,6 +39,7 @@ exports.getCart = (req, res, next) => {
       res.render('shop/cart', {
         pageTitle: 'Your Cart',
         products: products,
+        isAuthenticated: req.isLoggedIn,
       });
     })
     .catch(err => console.log(err));
@@ -94,15 +103,25 @@ exports.getOrders = (req, res, next) => {
   // retrieve the orders that belongs to the currently logged in user.
   Order.find({ 'user.userId': req.user._id })
     .then(orders => {
-      res.render('shop/orders', { pageTitle: 'Your Orders', orders });
+      res.render('shop/orders', {
+        pageTitle: 'Your Orders',
+        orders,
+        isAuthenticated: req.isLoggedIn,
+      });
     })
     .catch(err => console.log(err));
 };
 
 exports.getIndex = (req, res, next) => {
-  res.render('shop/index', { pageTitle: 'Welcome' });
+  res.render('shop/index', {
+    pageTitle: 'Welcome',
+    isAuthenticated: req.isLoggedIn,
+  });
 };
 
 exports.getCheckout = (req, res, next) => {
-  res.render('shop/checkout', { pageTitle: 'Checkout' });
+  res.render('shop/checkout', {
+    pageTitle: 'Checkout',
+    isAuthenticated: req.isLoggedIn,
+  });
 };
