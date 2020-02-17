@@ -53,6 +53,7 @@ exports.postLogin = async (req, res, next) => {
 };
 
 exports.postLogout = (req, res, next) => {
+  // destroy the currently authenticated user's session
   req.session.destroy(err => {
     // A function that gets passed to destroy that gets called when it's done destroying the session
     console.log(err);

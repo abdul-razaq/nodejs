@@ -6,7 +6,7 @@ exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Product',
     editing: false,
-    isAuthenticated: req.session.isLoggedIn
+    isAuthenticated: req.session.isLoggedIn,
   });
 };
 
@@ -50,7 +50,7 @@ exports.getEditProduct = (req, res, next) => {
         pageTitle: 'Add Product',
         editing: editMode,
         product,
-        isAuthenticated: req.isLoggedIn        
+        isAuthenticated: req.isLoggedIn,
       });
     })
     .catch(err => {
@@ -81,7 +81,11 @@ exports.postEditProduct = (req, res, next) => {
 exports.getAllProducts = async (req, res, next) => {
   // Find all Products that only belong to the currently logged in user
   const products = await Product.find();
-  res.render('admin/products', { pageTitle: 'All Products', products, isAuthenticated: req.isLoggedIn });
+  res.render('admin/products', {
+    pageTitle: 'All Products',
+    products,
+    isAuthenticated: req.isLoggedIn,
+  });
 };
 
 exports.postDeleteProduct = async (req, res, next) => {
