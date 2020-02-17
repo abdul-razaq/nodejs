@@ -88,11 +88,11 @@ app.use(errorsController.get404);
 mongoose
   .connect(MONGODB_URI)
   .then(() => {
-    // listen for incoming request after mongoose has connected to the database
     app.listen(3000, () => {
+      // listen for incoming request after mongoose has connected to the database
       console.log('Application started.');
     });
   })
-  .catch(err => {
-    console.log(err);
+  .catch(error => {
+    console.log(error);
   });

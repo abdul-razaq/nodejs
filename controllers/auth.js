@@ -15,19 +15,41 @@ exports.getLogin = (req, res, next) => {
   });
 };
 
-exports.postLogin = (req, res, next) => {
-  User.findById('')
-    .then(user => {
-      req.session.isLoggedIn = true;
-      // store the currently authenticated user in the session
-      req.session.user = user;
-      // We may sometimes need to call save() method on req.session in scenarios where you need to be sure that your session was created before you continue
-      req.session.save(err => {
-        console.log(err);
-        res.redirect('/');
-      });
-    })
-    .catch(err => console.log(err));
+exports.postLogin = async (req, res, next) => {
+  // extract the user's email address
+  const { email, password } = req.body;
+  // find a user by the email entered
+  try {
+    const user = await User.findOne({ email });
+    if (user) {
+      try {
+        // if a user with this email address already exists in the database, check the password received to see it tallies with the hashedPassword stored in the database
+        const passwordMatched = await bcrypt.compare(password, user.password);
+        // if the entered password matches the hashed password
+        if (passwordMatched) {
+          // Set a session for the authenticated user if we have a matching password
+          // store authentication information in the session so we can use this information in any other requests
+          req.session.isLoggedIn = true;
+          // Also store the user object in the session
+          req.session.user = user;
+          // call save to make user our session is created
+          return req.session.save(err => {
+            console.log(err);
+            res.redirect('/');
+          });
+        } else {
+          res.redirect('/login');
+        }
+      } catch (error) {
+        res.redirect('/login');
+      }
+    } else {
+      // If a user with this email is not found redirect the user to the login page
+      res.redirect('/login');
+    }
+  } catch (error) {
+    console.log(error);
+  }
 };
 
 exports.postLogout = (req, res, next) => {
