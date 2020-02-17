@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
+const csrf = require('csurf');
 
 const app = express();
 // Initialize a new session store
@@ -12,6 +13,9 @@ const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: 'sessions',
 });
+
+// call the csrf function to initialize a csrfProtection middleware
+const csrfProtection = csrf();
 
 // We need to make sure express knows about the templating engine we want to use,
 // so we use app.set to set configuration items e.g 'view engine'
@@ -48,6 +52,7 @@ app.use(
     store,
   })
 );
+app.use(csrfProtection);
 
 // Use a middleware to store our user in the request
 app.use((req, res, next) => {
@@ -74,6 +79,13 @@ app.use((req, res, next) => {
     .catch(err => {
       if (err) console.log(err);
     });
+});
+
+// Add local data needed in almost all of our views in a custom middleware
+app.use((req, res, next) => {
+  res.locals.isAuthenticated = req.session.isLoggedIn;
+  res.locals.csrfToken = req.csrfToken();
+  next();
 });
 
 // Only routes starting with /admin will go to the adminRoutes file
