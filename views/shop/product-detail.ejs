@@ -11,6 +11,7 @@
   <p><%= product.description %></p>
   <% } else { %>
   <h1>Loading...</h1>
-  <% } %> <%- include('../includes/add-to-cart.ejs', {product: product}) %>
+  <% } %> <% if (isAuthenticated) { %> <%-
+  include('../includes/add-to-cart.ejs', {product: product}) %> <% } %>
 </main>
 <%- include('../includes/end.ejs') %>
