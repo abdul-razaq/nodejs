@@ -87,23 +87,8 @@ app.use(errorsController.get404);
 // Setup a mongoose connection to the mongodb database
 mongoose
   .connect(MONGODB_URI)
-  .then(result => {
+  .then(() => {
     // listen for incoming request after mongoose has connected to the database
-    // create a user before we start listening
-    User.findOne()
-      .then(user => {
-        if (!user) {
-          const user = new User({
-            name: 'Nivans',
-            email: 'nivans@gmail.com',
-            cart: {
-              items: [],
-            },
-          });
-          user.save();
-        }
-      })
-      .catch();
     app.listen(3000, () => {
       console.log('Application started.');
     });
