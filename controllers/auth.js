@@ -3,15 +3,15 @@ const bcrypt = require('bcryptjs');
 const User = require('../models/user');
 
 exports.getLogin = (req, res, next) => {
-  // const isLoggedIn =
-  //   req
-  //     .get('Cookie')
-  //     .split(';')[1]
-  //     .trim()
-  //     .split('=')[1] === true;
+  let message = req.flash('error');
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
   res.render('auth/login', {
     pageTitle: 'Login',
-    isAuthenticated: false,
+    errorMessage: message,
   });
 };
 
@@ -44,6 +44,8 @@ exports.postLogin = async (req, res, next) => {
         res.redirect('/login');
       }
     } else {
+      // flash an error message into our session
+      req.flash('error', 'Invalid email or password');
       // If a user with this email is not found redirect the user to the login page
       res.redirect('/login');
     }
@@ -62,7 +64,13 @@ exports.postLogout = (req, res, next) => {
 };
 
 exports.getSignup = (req, res, next) => {
-  res.render('auth/signup', { pageTitle: 'Signup', isAuthenticated: false });
+  let message = req.flash('error');
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
+  res.render('auth/signup', { pageTitle: 'Signup', errorMessage: message });
 };
 
 exports.postSignup = (req, res, next) => {
@@ -88,6 +96,7 @@ exports.postSignup = (req, res, next) => {
           return console.log(err);
         }
       } else {
+        req.flash('error', 'Email address already in use by another user');
         res.redirect('/signup');
       }
     })

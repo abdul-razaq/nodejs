@@ -6,6 +6,7 @@ const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
 const csrf = require('csurf');
+const flash = require('connect-flash');
 
 const app = express();
 // Initialize a new session store
@@ -53,6 +54,7 @@ app.use(
   })
 );
 app.use(csrfProtection);
+app.use(flash());
 
 // Use a middleware to store our user in the request
 app.use((req, res, next) => {

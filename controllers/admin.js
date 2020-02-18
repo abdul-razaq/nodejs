@@ -6,7 +6,6 @@ exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Product',
     editing: false,
-    isAuthenticated: req.session.isLoggedIn,
   });
 };
 
@@ -50,7 +49,6 @@ exports.getEditProduct = (req, res, next) => {
         pageTitle: 'Add Product',
         editing: editMode,
         product,
-        isAuthenticated: req.isLoggedIn,
       });
     })
     .catch(err => {
@@ -84,7 +82,6 @@ exports.getAllProducts = async (req, res, next) => {
   res.render('admin/products', {
     pageTitle: 'All Products',
     products,
-    isAuthenticated: req.isLoggedIn,
   });
 };
 
