@@ -9,7 +9,7 @@ const csrf = require('csurf');
 const flash = require('connect-flash');
 
 const app = express();
-// Initialize a new session store
+// Initialize a new session store to store the session in the mongoDB Database
 const store = new MongoDBStore({
   uri: MONGODB_URI,
   collection: 'sessions',
@@ -56,14 +56,14 @@ app.use(
 app.use(csrfProtection);
 app.use(flash());
 
-// Use a middleware to store our user in the request
+// WE USE A MIDDLEWARE TO STORE THE CURRENTLY AUTHENTICATED OR LOGGED-IN USER ON THE SESSION WHICH WAS SET IN OUR POST-LOGIN CONTROLLER TO BE ABLE TO HAVE ACCESS TO THE LOGGED-IN USER AT ANYTIME
 app.use((req, res, next) => {
   if (!req.session.user) {
     return next();
   }
   User.findById(req.session.user._id)
     .then(user => {
-      // use user data that is stored in the session to fetch a user from the database
+      // use user data that is stored in the session to fetch logged-in user from the database
       req.user = user;
       next();
     })

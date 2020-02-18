@@ -61,15 +61,18 @@ exports.postEditProduct = (req, res, next) => {
   const { title, price, imageUrl, description } = req.body;
   Product.findById(productId)
     .then(product => {
+      // check to see if the product being edited is owned or created by the currently logged in user
+      if (product.userId.toString() !== req.user._id.toString()) {
+        return res.redirect('/');
+      }
       product.title = title;
       product.price = price;
       product.imageUrl = imageUrl;
       product.description = description;
-      return product.save();
-    })
-    .then(result => {
-      console.log('UPDATED PRODUCT');
-      res.redirect('/admin/products');
+      return product.save().then(result => {
+        console.log('UPDATED PRODUCT');
+        res.redirect('/admin/products');
+      });
     })
     .catch(err => {
       if (err) console.log(err);
@@ -77,8 +80,8 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getAllProducts = async (req, res, next) => {
-  // Find all Products that only belong to the currently logged in user
-  const products = await Product.find();
+  // Find all Products that only belong to the currently logged in user.
+  const products = await Product.find({ userId: req.user._id });
   res.render('admin/products', {
     pageTitle: 'All Products',
     products,
@@ -87,8 +90,8 @@ exports.getAllProducts = async (req, res, next) => {
 
 exports.postDeleteProduct = async (req, res, next) => {
   const { productId } = req.body;
-  // Delete a product that belongs to the currently logged in user
-  await Product.findByIdAndRemove(productId);
+  // Delete a product that belongs to the currently logged in user, we use deleteOne instead of findByIdAndRemove so that we can apply filter
+  await Product.deleteOne({_id: productId, userId: req.user._id});
   console.log('PRODUCT DESTROYED');
   res.redirect('/admin/products');
 };

@@ -101,8 +101,7 @@ exports.postSignup = (req, res, next) => {
         const hashedPassword = await bcrypt.hash(password, 12);
         const user = new User({ email, hashedPassword, cart: { items: [] } });
         try {
-          const savedUser = await user.save();
-          console.log(savedUser);
+          await user.save();
           // send an email to the user after signing up
           transporter
             .sendMail({
@@ -184,3 +183,53 @@ exports.postReset = async (req, res, next) => {
     }
   });
 };
+
+
+exports.getNewPassword = async (req, res, next) => {
+  // check to see if we find a user for the token
+  const token = req.params.token;
+  try {
+    const user = await User.findOne({resetToken: token, resetTokenExpiration: {$gt: Date.now()}});
+    let message = req.flash('error');
+    if (message.length > 0) {
+      message = message[0];
+    } else {
+      message = null;
+    }
+    res.render('auth/new-password', {
+      pageTitle: 'New Password',
+      errorMessage: message,
+      userId: user._id.toString(),
+      passwordToken: token
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+exports.postNewPassword = async (req, res, next) => {
+  // extract the password from the request body
+  const { password: newPassword, userId, passwordToken } = req.body;
+
+  try {
+    const user = await User.findOne({_id: userId, resetToken: passwordToken, resetTokenExpiration: {$gt: Date.now()}});
+    // hash the new password we got from the user
+    const hashedPassword = await bcrypt.hash(newPassword, 12);
+    // update the user password to the just hashed Password
+    user.password = hashedPassword;
+    // clear the reset token
+    user.resetToken = undefined;
+    user.resetTokenExpiration = undefined ;
+    await user.save();
+    // send a mail confirming the resetting of the user password
+    transporter.sendMail({
+      to: user.email,
+      from: 'shop@node-complete.com',
+      subject: 'Password Changed',
+      html: '<h1>Password Changed Successfully!</h1>'
+    })
+    res.redirect('/')
+  } catch (error) {
+    console.log(error);
+  }
+}
