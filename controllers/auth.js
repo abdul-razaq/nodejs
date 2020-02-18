@@ -1,3 +1,5 @@
+const crypto = require('crypto');
+
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
@@ -127,4 +129,58 @@ exports.postSignup = (req, res, next) => {
     .catch(err => {
       console.log(err);
     });
+};
+
+// Reset password
+exports.getReset = (req, res, next) => {
+  let message = req.flash('error');
+  if (message.length > 0) {
+    message = message[0];
+  } else {
+    message = null;
+  }
+  res.render('auth/reset', {
+    pageTitle: 'Reset Password',
+    errorMessage: message,
+  });
+};
+
+exports.postReset = async (req, res, next) => {
+  // generate password reset token using crypto node module
+  crypto.randomBytes(32, (err, buffer) => {
+    // callback function that will get called when it's done
+    if (err) {
+      console.log(err);
+      return res.redirect('/reset');
+    }
+    // generate a token from the buffer
+    const token = buffer.toString('hex');
+    // store the token on the user that we plan to reset the password
+    // with the email address that we got from the request made to this controller
+    try {
+      const user = await User.findOne({ email: req.body.email });
+      if (!user) {
+        req.flash('error', 'No account with that email was found.');
+        return res.redirect('/reset');
+      }
+      // set the reset token on the user field
+      user.resetToken = token;
+      // reset token must be in milliseconds
+      user.resetTokenExpiration = Date.now() + 3600000;
+      await user.save();
+      // Now that the resetToken has been saved to the database, send the resetToken email
+      res.redirect('/');
+      transporter.sendMail({
+        to: req.body.email,
+        from: 'shop@node-complete.com',
+        subject: 'Password reset',
+        html: `
+          <p>You requested password reset</p>
+          <p>Click this <a href="http://localhost:3000/reset/${token}">link</a> to set a new password.</p>
+        `
+      })
+    } catch (error) {
+      console.log(error);
+    }
+  });
 };
