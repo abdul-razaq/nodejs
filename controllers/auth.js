@@ -3,6 +3,7 @@ const crypto = require('crypto');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
 const sendgridTransport = require('nodemailer-sendgrid-transport');
+const { validationResult } = require('express-validator/check');
 
 const User = require('../models/user');
 
@@ -30,7 +31,17 @@ exports.getLogin = (req, res, next) => {
 
 exports.postLogin = async (req, res, next) => {
   // extract the user's email address
-  const { email, password } = req.body;
+  const { email, password, confirmPassword } = req.body;
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res
+      .status(422)
+      .render('auth/login', {
+        pageTitle: 'Login',
+        errorMessage: errors.array()[0].msg,
+        oldInput: {email, password, confirmPassword}
+      });
+  }
   // find a user by the email entered
   try {
     const user = await User.findOne({ email });
@@ -83,13 +94,26 @@ exports.getSignup = (req, res, next) => {
   } else {
     message = null;
   }
-  res.render('auth/signup', { pageTitle: 'Signup', errorMessage: message });
+  res.render('auth/signup', { pageTitle: 'Signup', errorMessage: message, oldInput: {email: '', password: '', confirmPassword: ''}, validationErrors: []
+});
 };
 
 exports.postSignup = (req, res, next) => {
   // When a signup request hits this controller
   // We want to store a new user in the database
-  const { email, password, confirmPassword } = req.body;
+  const { email, password } = req.body;
+  const errors = validationResult(req);
+  // check if we have errors
+  if (!errors.isEmpty()) {
+    return res
+      .status(422)
+      .render('auth/signup', {
+        pageTitle: Signup,
+        errorMessage: errors.array()[0].msg,
+        oldInput: {email, password, confirmPassword},
+        validationErrors: errors.array()
+      });
+  }
   // validate the user input first
   // find out if a user with this email address already exists, because we don't want any duplicate emails in our database
   // create a new user if a user with this email does not exist
@@ -149,7 +173,6 @@ exports.postReset = async (req, res, next) => {
   crypto.randomBytes(32, (err, buffer) => {
     // callback function that will get called when it's done
     if (err) {
-      console.log(err);
       return res.redirect('/reset');
     }
     // generate a token from the buffer
@@ -184,12 +207,14 @@ exports.postReset = async (req, res, next) => {
   });
 };
 
-
 exports.getNewPassword = async (req, res, next) => {
   // check to see if we find a user for the token
   const token = req.params.token;
   try {
-    const user = await User.findOne({resetToken: token, resetTokenExpiration: {$gt: Date.now()}});
+    const user = await User.findOne({
+      resetToken: token,
+      resetTokenExpiration: { $gt: Date.now() },
+    });
     let message = req.flash('error');
     if (message.length > 0) {
       message = message[0];
@@ -200,36 +225,40 @@ exports.getNewPassword = async (req, res, next) => {
       pageTitle: 'New Password',
       errorMessage: message,
       userId: user._id.toString(),
-      passwordToken: token
+      passwordToken: token,
     });
   } catch (error) {
     console.log(error);
   }
-}
+};
 
 exports.postNewPassword = async (req, res, next) => {
   // extract the password from the request body
   const { password: newPassword, userId, passwordToken } = req.body;
 
   try {
-    const user = await User.findOne({_id: userId, resetToken: passwordToken, resetTokenExpiration: {$gt: Date.now()}});
+    const user = await User.findOne({
+      _id: userId,
+      resetToken: passwordToken,
+      resetTokenExpiration: { $gt: Date.now() },
+    });
     // hash the new password we got from the user
     const hashedPassword = await bcrypt.hash(newPassword, 12);
     // update the user password to the just hashed Password
     user.password = hashedPassword;
     // clear the reset token
     user.resetToken = undefined;
-    user.resetTokenExpiration = undefined ;
+    user.resetTokenExpiration = undefined;
     await user.save();
     // send a mail confirming the resetting of the user password
     transporter.sendMail({
       to: user.email,
       from: 'shop@node-complete.com',
       subject: 'Password Changed',
-      html: '<h1>Password Changed Successfully!</h1>'
-    })
-    res.redirect('/')
+      html: '<h1>Password Changed Successfully!</h1>',
+    });
+    res.redirect('/');
   } catch (error) {
     console.log(error);
   }
-}
+};
