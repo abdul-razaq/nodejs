@@ -2,10 +2,13 @@
 const Product = require('../models/product');
 const mongodb = require('../utils/database');
 
+const { validationResult } = require('express-validator/check');
+
 exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Product',
     editing: false,
+    hasError: false
   });
 };
 
@@ -13,6 +16,21 @@ exports.postAddProduct = async (req, res, next) => {
   // grab the id of the user which is currently logged in that is now stored in the req.user property
   const { _id } = req.user;
   const { title, imageUrl, price, description } = req.body;
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Add Product',
+      editing: false,
+      hasError: true,
+      product: {
+        title,
+        imageUrl,
+        price,
+        description
+      },
+    });
+  }
   // create a new product from our mongoose Product model and immediately save it to the database
   const product = new Product({
     title: title,
@@ -49,6 +67,7 @@ exports.getEditProduct = (req, res, next) => {
         pageTitle: 'Add Product',
         editing: editMode,
         product,
+        hasError: false
       });
     })
     .catch(err => {
@@ -85,13 +104,14 @@ exports.getAllProducts = async (req, res, next) => {
   res.render('admin/products', {
     pageTitle: 'All Products',
     products,
+    hasError: false
   });
 };
 
 exports.postDeleteProduct = async (req, res, next) => {
   const { productId } = req.body;
   // Delete a product that belongs to the currently logged in user, we use deleteOne instead of findByIdAndRemove so that we can apply filter
-  await Product.deleteOne({_id: productId, userId: req.user._id});
+  await Product.deleteOne({ _id: productId, userId: req.user._id });
   console.log('PRODUCT DESTROYED');
   res.redirect('/admin/products');
 };

@@ -26,6 +26,11 @@ exports.getLogin = (req, res, next) => {
   res.render('auth/login', {
     pageTitle: 'Login',
     errorMessage: message,
+    oldInput: {
+      email: '',
+      password: ''
+    },
+    validationErrors: []
   });
 };
 
@@ -39,7 +44,8 @@ exports.postLogin = async (req, res, next) => {
       .render('auth/login', {
         pageTitle: 'Login',
         errorMessage: errors.array()[0].msg,
-        oldInput: {email, password, confirmPassword}
+        oldInput: {email, password, confirmPassword},
+        validationErrors: errors.array()
       });
   }
   // find a user by the email entered
@@ -69,9 +75,14 @@ exports.postLogin = async (req, res, next) => {
       }
     } else {
       // flash an error message into our session
-      req.flash('error', 'Invalid email or password');
-      // If a user with this email is not found redirect the user to the login page
-      res.redirect('/login');
+      return res
+      .status(422)
+      .render('auth/login', {
+        pageTitle: 'Login',
+        errorMessage: errors.array()[0].msg,
+        oldInput: {email, password, confirmPassword},
+        validationErrors: []
+      });
     }
   } catch (error) {
     console.log(error);

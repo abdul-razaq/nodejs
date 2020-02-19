@@ -7,7 +7,20 @@ const authController = require('../controllers/auth');
 
 router.get('/login', authController.getLogin);
 
-router.post('/login', authController.postLogin);
+router.post(
+  '/login',
+  [
+    body('email')
+      .isEmail()
+      .withMessage('Please enter a valid email address')
+      .normalizeEmail(),
+    body('password', 'Password has to be valid')
+      .isLength({ min: 5 })
+      .isAlphanumeric()
+      .trim(),
+  ],
+  authController.postLogin
+);
 
 router.post('/logout', authController.postLogout);
 
@@ -18,13 +31,16 @@ router.post(
   check('email')
     .isEmail()
     .withMessage('Please enter a valid email address')
+    .normalizeEmail()
     .body(
       'password',
       'Please enter a password with only numbers and text and at least 8 characters'
     )
     .isLength({ min: 8 })
     .isAlphanumeric()
+    .trim()
     .body('confirmPassword')
+    .trim()
     .custom((value, { req }) => {
       if (value !== req.body.password) {
         throw new Error('Passwords have to match');
