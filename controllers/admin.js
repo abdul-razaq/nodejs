@@ -46,7 +46,9 @@ exports.postAddProduct = async (req, res, next) => {
       res.redirect('/admin/products');
     })
     .catch(err => {
-      if (err) console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -71,7 +73,9 @@ exports.getEditProduct = (req, res, next) => {
       });
     })
     .catch(err => {
-      if (err) console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 
@@ -94,7 +98,9 @@ exports.postEditProduct = (req, res, next) => {
       });
     })
     .catch(err => {
-      if (err) console.log(err);
+      const error = new Error(err);
+      error.httpStatusCode = 500;
+      return next(error);
     });
 };
 

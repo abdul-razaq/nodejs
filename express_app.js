@@ -24,6 +24,7 @@ app.set('view engine', 'ejs');
 // let express know where to find our views
 app.set('views', 'views');
 
+// ROUTES MIDDLEWARES / CONTROLLERS
 const adminRoutes = require('./routes/admin');
 const shopRoutes = require('./routes/shop');
 const authRoutes = require('./routes/auth');
@@ -56,6 +57,7 @@ app.use(
 app.use(csrfProtection);
 app.use(flash());
 
+// Register a new middleware so that i can store that user in my request, so that i can use it from anywhere in my app conveniently
 // WE USE A MIDDLEWARE TO STORE THE CURRENTLY AUTHENTICATED OR LOGGED-IN USER ON THE SESSION WHICH WAS SET IN OUR POST-LOGIN CONTROLLER TO BE ABLE TO HAVE ACCESS TO THE LOGGED-IN USER AT ANYTIME
 app.use((req, res, next) => {
   if (!req.session.user) {
@@ -63,23 +65,15 @@ app.use((req, res, next) => {
   }
   User.findById(req.session.user._id)
     .then(user => {
+      if (!user) {
+        return next();
+      }
       // use user data that is stored in the session to fetch logged-in user from the database
       req.user = user;
       next();
     })
-    .catch(err => console.log(err));
-});
-// Register a new middleware so that i can store that user in my request, so that i can use it from anywhere in my app conveniently
-app.use((req, res, next) => {
-  // This code will only run for incoming request
-  User.findById('')
-    .then(user => {
-      // store the user in a request
-      req.user = user;
-      next();
-    })
     .catch(err => {
-      if (err) console.log(err);
+      throw new Error(err);
     });
 });
 
@@ -90,13 +84,17 @@ app.use((req, res, next) => {
   next();
 });
 
+// ROUTES MIDDLEWARES / CONTROLLERS
 // Only routes starting with /admin will go to the adminRoutes file
 app.use('/admin', adminRoutes);
 app.use(shopRoutes);
 app.use(authRoutes);
-
 // This is a catch all middleware that returns 404
 app.use(errorsController.get404);
+// Error handling middleware, this middleware gets fired whenever we call next() in any of our controllers and passing an error argument from a catch block in it, express will immediately not pass execution to the nex middleware in line, but pass execution to this error handling middleware
+app.use((error, req, res, next) => {
+  res.redirect('/500');
+});
 
 // Setup a mongoose connection to the mongodb database
 mongoose
