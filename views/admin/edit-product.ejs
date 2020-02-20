@@ -16,7 +16,7 @@
         value="<% if(editing) { %><%= product.title %><% } %>"
       />
     </div>
-    <div class="form-control">
+    <!-- <div class="form-control">
       <label for="imageUrl">Image URL</label>
       <input
         type="text"
@@ -24,6 +24,10 @@
         id="imageUrl"
         value="<% if(editing) { %><%= product.imageUrl %><% } %>"
       />
+    </div> -->
+    <div class="form-control">
+      <label for="image">Image</label>
+      <input type="file" name="image" id="image" />
     </div>
     <div class="form-control">
       <label for="price">Price</label>
@@ -43,8 +47,7 @@
     </div>
     <% if (editing) { %>
     <input type="hidden" name="productId" value="<%= product._id %>" />
-    <% } %>
-    <input type="hidden" name="_csrf" value=<%= csrfToken %> >
+    <% } %> <input type="hidden" name="_csrf" value=<%= csrfToken %> >
     <button class="btn" type="submit">
       <% if (editing) { %> Update Product <% } else {%> Add Product <%} %>
     </button>
