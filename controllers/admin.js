@@ -8,14 +8,33 @@ exports.getAddProduct = (req, res, next) => {
   res.render('admin/edit-product', {
     pageTitle: 'Add Product',
     editing: false,
-    hasError: false
+    hasError: false,
   });
 };
 
 exports.postAddProduct = async (req, res, next) => {
   // grab the id of the user which is currently logged in that is now stored in the req.user property
   const { _id } = req.user;
-  const { title, imageUrl, price, description } = req.body;
+  const { title, price, description } = req.body;
+  const image = req.file;
+
+  const errors = validationResult(req);
+
+  // check if multer declined the image
+  if (!image) {
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Add Product',
+      editing: false,
+      hasError: true,
+      product: {
+        title,
+        price,
+        description,
+      },
+      errorMessage: 'Attached file is not an image.',
+      validationErrors: [],
+    });
+  }
   const errors = validationResult(req);
 
   if (!errors.isEmpty()) {
@@ -25,12 +44,14 @@ exports.postAddProduct = async (req, res, next) => {
       hasError: true,
       product: {
         title,
-        imageUrl,
         price,
-        description
+        description,
       },
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array(),
     });
   }
+  const imageUrl = image.path;
   // create a new product from our mongoose Product model and immediately save it to the database
   const product = new Product({
     title: title,
@@ -69,7 +90,7 @@ exports.getEditProduct = (req, res, next) => {
         pageTitle: 'Add Product',
         editing: editMode,
         product,
-        hasError: false
+        hasError: false,
       });
     })
     .catch(err => {
@@ -81,7 +102,27 @@ exports.getEditProduct = (req, res, next) => {
 
 exports.postEditProduct = (req, res, next) => {
   const { productId } = req.body;
-  const { title, price, imageUrl, description } = req.body;
+  const { title, price, description } = req.body;
+  const image = req.file;
+
+  const errors = validationResult(req);
+
+  if (!errors.isEmpty()) {
+    return res.status(422).render('admin/edit-product', {
+      pageTitle: 'Edit Product',
+      editing: true,
+      hasError: true,
+      product: {
+        title,
+        price,
+        description,
+        productId
+      },
+      errorMessage: errors.array()[0].msg,
+      validationErrors: errors.array(),
+    });
+  }
+
   Product.findById(productId)
     .then(product => {
       // check to see if the product being edited is owned or created by the currently logged in user
@@ -90,7 +131,10 @@ exports.postEditProduct = (req, res, next) => {
       }
       product.title = title;
       product.price = price;
-      product.imageUrl = imageUrl;
+      // check to see if the image returned from req.file from multer is not undefined, if it is not save the path of that image
+      if (image) {
+        product.imageUrl = image.path;
+      }
       product.description = description;
       return product.save().then(result => {
         console.log('UPDATED PRODUCT');
@@ -105,12 +149,12 @@ exports.postEditProduct = (req, res, next) => {
 };
 
 exports.getAllProducts = async (req, res, next) => {
-  // Find all Products that only belong to the currently logged in user.
+  // Find all Products that only belong to the currently logged in / authenticated user.
   const products = await Product.find({ userId: req.user._id });
   res.render('admin/products', {
     pageTitle: 'All Products',
     products,
-    hasError: false
+    hasError: false,
   });
 };
 

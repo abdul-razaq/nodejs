@@ -2,6 +2,7 @@ const path = require('path');
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const multer = require('multer');
 const mongoose = require('mongoose');
 const session = require('express-session');
 const MongoDBStore = require('connect-mongodb-session')(session);
@@ -17,6 +18,31 @@ const store = new MongoDBStore({
 
 // call the csrf function to initialize a csrfProtection middleware
 const csrfProtection = csrf();
+
+// setup storage configuration engine for multer on where it will store our images and what filenames to give the images
+const fileStorage = multer.diskStorage({
+  destination: (req, file, callback) => {
+    callback(null, 'images');
+  },
+  filename: (req, file, callback) => {
+    callback(null, new Date().toISOString() + '-' + file.originalname);
+  },
+});
+
+// We can set file filters to multer to only allow certain types of files e.g only png, jpeg and not pdf files
+const fileFilter = (req, file, callback) => {
+  // call the callback with true as argument if we want to store the file
+  if (
+    file.mimetype === 'image/png' ||
+    file.mimetype === 'image/jpg' ||
+    file.mimetype === 'image/jpeg'
+  ) {
+    callback(null, true);
+  } else {
+    // call the callback with false as argument if we do not want to store the file
+    callback(null, false);
+  }
+};
 
 // We need to make sure express knows about the templating engine we want to use,
 // so we use app.set to set configuration items e.g 'view engine'
@@ -44,6 +70,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 // Add middleware before our route handling middlewares because the parsing of the body should be done no matter where the request of the body ends up.
 // Parse the incoming request body in our express app
 app.use(bodyParser.urlencoded({ extended: false }));
+// Parse the incoming request body for multipart data (file)
+app.use(multer({ storage: fileStorage, fileFilter: fileFilter }).single('image'));
 // set up session middleware.
 // set resave to false to make sure the session is not saved on every request that is done
 app.use(
